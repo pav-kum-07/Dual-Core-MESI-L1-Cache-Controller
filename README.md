@@ -4,7 +4,7 @@
 [![Tool](https://img.shields.io/badge/Simulator-Vivado%20XSIM-red.svg)](https://www.xilinx.com/products/design-tools/vivado.html)
 [![Verification](https://img.shields.io/badge/Verification-100%25%20Passing-brightgreen.svg)]()
 
-A synthesizable, high-performance **Dual-Core 2-Way Set-Associative L1 Cache Subsystem** implemented in SystemVerilog. Features hardware-enforced **MESI cache coherence**, non-blocking dual-port snooping, round-robin bus arbitration, true LRU replacement, and dirty line cache-to-cache forwarding.
+A synthesizable, high-performance **Dual-Core 2-Way Set-Associative L1 Cache Subsystem** implemented in SystemVerilog. Features hardware-enforced **MESI cache coherence**, non-blocking dual-port sn[...]
 
 ---
 
@@ -163,7 +163,7 @@ Inside each cache controller, two state machines operate concurrently to prevent
 
 | State | Hardware Action | Bus Command Issued | Next State |
 | :--- | :--- | :---: | :--- |
-| **`FSM_IDLE`** | Evaluates tag match combinationally. Serves hit in 1 cycle. | `BUS_IDLE` | `FSM_IDLE` (Hit)<br>`FSM_UPGRADE` (Write Hit on `S`)<br>`FSM_WRITE_BACK` (Miss + Dirty Victim)<br>`FSM_ALLOCATE` (Miss + Clean Victim) |
+| **`FSM_IDLE`** | Evaluates tag match combinationally. Serves hit in 1 cycle. | `BUS_IDLE` | `FSM_IDLE` (Hit)<br>`FSM_UPGRADE` (Write Hit on `S`)<br>`FSM_WRITE_BACK` (Miss + Dirty Victim)<br>`FS[...]
 | **`FSM_WRITE_BACK`** | Flushes 16-byte dirty victim line to DRAM. | **`BUS_WB`** | `FSM_ALLOCATE` (upon DRAM ack) |
 | **`FSM_ALLOCATE`** | Refills 16-byte block from DRAM or dirty peer. Updates SRAM & tag. | **`BUS_RD`** (load)<br>**`BUS_RDX`** (store) | `FSM_IDLE` (upon refill complete) |
 | **`FSM_UPGRADE`** | Broadcasts invalidation to peers. Upgrades local line `S` $\rightarrow$ `M`. | **`BUS_UPGR`** | `FSM_IDLE` (upon bus grant) |
@@ -174,14 +174,14 @@ Inside each cache controller, two state machines operate concurrently to prevent
 | :---: | :---: | :---: | :---: | :---: |
 | **`INVALID` (I)** | Miss: Refill via `BUS_RD`<br>$\rightarrow$ **`E`** (no peer) / **`S`** (peer hit) | Miss: Refill via `BUS_RDX`<br>$\rightarrow$ **`M`** | No Action | No Action |
 | **`SHARED` (S)** | Hit (1-cycle):<br>Remains in **`S`** | Hit: Broadcast `BUS_UPGR`<br>$\rightarrow$ **`M`** | Hit: Remains in **`S`** | Invalidate copy:<br>$\rightarrow$ **`I`** |
-| **`EXCLUSIVE` (E)** | Hit (1-cycle):<br>Remains in **`E`** | Silent Hit (0 bus traffic):<br>$\rightarrow$ **`M`** | Downgrade copy:<br>$\rightarrow$ **`S`** | Invalidate copy:<br>$\rightarrow$ **`I`** |
-| **`MODIFIED` (M)** | Hit (1-cycle):<br>Remains in **`M`** | Silent Hit (0 bus traffic):<br>$\rightarrow$ **`M`** | **Dirty Forwarding** to peer:<br>$\rightarrow$ **`S`** | **Dirty Forwarding**, then invalidate:<br>$\rightarrow$ **`I`** |
+| **`EXCLUSIVE` (E)** | Hit (1-cycle):<br>Remains in **`E`** | Silent Hit (0 bus traffic):<br>$\rightarrow$ **`M`** | Downgrade copy:<br>$\rightarrow$ **`S`** | Invalidate copy:<br>$\rightarrow$ [...]
+| **`MODIFIED` (M)** | Hit (1-cycle):<br>Remains in **`M`** | Silent Hit (0 bus traffic):<br>$\rightarrow$ **`M`** | **Dirty Forwarding** to peer:<br>$\rightarrow$ **`S`** | **Dirty Forwarding**,[...]
 
 ---
 
 ## Verification Suite & Simulation Results
 
-The testbench [`tb/tb_dual_core_cache.sv`](tb/tb_dual_core_cache.sv) runs 5 comprehensive directed test cases validating single-cycle hits, cold misses, write allocations, and multi-core coherence:
+The testbench [`tb/tb_dual_core_cache.sv`](tb/tb_dual_core_cache.sv) runs 5 comprehensive directed test cases validating single-cycle hits, cold misses, write allocations, and multi-core coherenc[...]
 
 | Test | Scenario | Verified Hardware Behavior | Status |
 | :---: | :--- | :--- | :---: |
@@ -239,7 +239,7 @@ run_non_uvm_sim.bat
 cd sim
 
 # 1. Compile SystemVerilog RTL and Testbench
-xvlog -sv -i ../rtl ../rtl/cache_def.sv ../rtl/cache_tag_array.sv ../rtl/cache_data_array.sv ../rtl/lru_array.sv ../rtl/cache_controller.sv ../rtl/bus_arbiter.sv ../rtl/dual_core_cache_subsystem.sv ../tb/mem_slave_model.sv ../tb/tb_dual_core_cache.sv
+xvlog -sv -i ../rtl ../rtl/cache_def.sv ../rtl/cache_tag_array.sv ../rtl/cache_data_array.sv ../rtl/lru_array.sv ../rtl/cache_controller.sv ../rtl/bus_arbiter.sv ../rtl/dual_core_cache_subsystem.[...]
 
 # 2. Elaborate design snapshot
 xelab -timescale 1ns/1ps -top tb_dual_core_cache -snapshot tb_dual_core_cache_sim -debug typical
@@ -252,4 +252,4 @@ xsim tb_dual_core_cache_sim -R
 
 ## Documentation Links
 * [Full Hardware Architecture Specification](CACHE_CONTROLLER_ARCHITECTURE_REPORT.md) — 400+ line technical report detailing datapath schematics, arbitration protocols, and timing diagrams.
-* [Interview Preparation & Design Tradeoffs Guide](docs/CACHE_CONTROLLER_INTERVIEW_PREP_GUIDE.md) — Common interview questions, race condition analysis, and coherence trade-offs.
+
