@@ -219,10 +219,10 @@ All external bus commands on `bus_req_cmd` are **issued exclusively by the Main 
 
 1. **CPU/Cache Isolation:** The CPU **never accesses Main Memory directly**. On a read miss, the CPU stalls while the Cache Controller fetches the 16-byte block from DRAM, stores it into cache SRAM, and delivers the requested 32-bit word over `cpu_resp_rdata`.
 2. **Bus Command Progression on Miss:**
-   * **Clean Victim (Invalid/Shared/Exclusive):** 
-     $$\text{CPU Miss} \longrightarrow \mathbf{FSM\_ALLOCATE}\ (\text{Bus: }\mathbf{BUS\_RD}\text{ or }\mathbf{BUS\_RDX}) \longrightarrow \text{Done}$$
+   * **Clean Victim (Invalid/Shared/Exclusive):**
+     `CPU Miss` $\longrightarrow$ **`FSM_ALLOCATE`** (Bus: **`BUS_RD`** or **`BUS_RDX`**) $\longrightarrow$ `Done`
    * **Dirty Victim (Modified):** Two-step sequence:
-     $$\text{CPU Miss} \longrightarrow \mathbf{FSM\_WRITE\_BACK}\ (\text{Bus: }\mathbf{BUS\_WB}) \longrightarrow \mathbf{FSM\_ALLOCATE}\ (\text{Bus: }\mathbf{BUS\_RD}\text{ or }\mathbf{BUS\_RDX}) \longrightarrow \text{Done}$$
+     `CPU Miss` $\longrightarrow$ **`FSM_WRITE_BACK`** (Bus: **`BUS_WB`**) $\longrightarrow$ **`FSM_ALLOCATE`** (Bus: **`BUS_RD`** or **`BUS_RDX`**) $\longrightarrow$ `Done`
 
 ---
 
