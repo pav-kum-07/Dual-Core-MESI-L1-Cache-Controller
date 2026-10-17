@@ -3,7 +3,6 @@
 [![Language](https://img.shields.io/badge/Language-SystemVerilog-blue.svg)](https://en.wikipedia.org/wiki/SystemVerilog)
 [![Tool](https://img.shields.io/badge/Simulator-Vivado%20XSIM-red.svg)](https://www.xilinx.com/products/design-tools/vivado.html)
 [![Verification](https://img.shields.io/badge/Verification-100%25%20Passing-brightgreen.svg)]()
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 A synthesizable, high-performance **Dual-Core 2-Way Set-Associative L1 Cache Subsystem** implemented in SystemVerilog. Features hardware-enforced **MESI cache coherence**, non-blocking dual-port snooping, round-robin bus arbitration, true LRU replacement, and dirty line cache-to-cache forwarding.
 
