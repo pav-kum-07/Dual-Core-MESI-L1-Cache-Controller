@@ -6,7 +6,7 @@
 [![SVA Assertions](https://img.shields.io/badge/SVA%20Assertions-Passing%20(0%20Violations)-brightgreen.svg)]()
 [![Scoreboard](https://img.shields.io/badge/Golden%20Scoreboard-Verified%20(90%2F90)-brightgreen.svg)]()
 
-A synthesizable, production-grade **Dual-Core 2-Way Set-Associative L1 Cache Subsystem** implemented in SystemVerilog. Features hardware-enforced **MESI cache coherence**, non-blocking dual-port snooping, round-robin bus arbitration, true LRU replacement, dirty line cache-to-cache forwarding, and an advanced **3-tier verification architecture** (SystemVerilog Assertions, Golden Shared-Memory Scoreboard, and Constrained-Random Multi-Core Stress Engine) achieving **100.00% functional coverage**.
+A synthesizable, production-grade **Dual-Core 2-Way Set-Associative L1 Cache Subsystem** implemented in SystemVerilog. Features hardware-enforced **MESI cache coherence**, non-blocking dual-port snooping, and a fully verified golden scoreboard-driven testbench.
 
 ---
 
@@ -195,8 +195,6 @@ Cache_Controller/
 │       ├── functionalCoverageReport/     # Interactive functional coverage dashboard
 │       └── codeCoverageReport/           # Line, branch, condition, toggle reports
 │
-├── docs/                                 # Architectural Specifications & Deep-Dives
-│   └── CACHE_CONTROLLER_INTERVIEW_PREP_GUIDE.md  # Detailed interview & architectural reference
 └── CACHE_CONTROLLER_ARCHITECTURE_REPORT.md       # Full hardware microarchitecture specification
 ```
 
@@ -210,7 +208,7 @@ Inside each cache controller, two state machines operate concurrently to prevent
 
 | State | Hardware Action | Bus Command Issued | Next State |
 | :--- | :--- | :---: | :--- |
-| **`FSM_IDLE`** | Evaluates tag match combinationally. Serves hit in 1 cycle. | `BUS_IDLE` | `FSM_IDLE` (Hit)<br>`FSM_UPGRADE` (Write Hit on `S`)<br>`FSM_WRITE_BACK` (Miss + Dirty Victim)<br>`FSM_ALLOCATE` (Miss + Clean Victim) |
+| **`FSM_IDLE`** | Evaluates tag match combinationally. Serves hit in 1 cycle. | `BUS_IDLE` | `FSM_IDLE` (Hit)<br>`FSM_UPGRADE` (Write Hit on `S`)<br>`FSM_WRITE_BACK` (Miss + Dirty Victim)<br>`FSM_ALL[...]` |
 | **`FSM_WRITE_BACK`** | Flushes 16-byte dirty victim line to DRAM. | **`BUS_WB`** | `FSM_ALLOCATE` (upon DRAM ack) |
 | **`FSM_ALLOCATE`** | Refills 16-byte block from DRAM or dirty peer. Updates SRAM & tag. | **`BUS_RD`** (load)<br>**`BUS_RDX`** (store) | `FSM_IDLE` (upon refill complete) |
 | **`FSM_UPGRADE`** | Broadcasts invalidation to peers. Upgrades local line `S` $\rightarrow$ `M`. | **`BUS_UPGR`** | `FSM_IDLE` (upon bus grant) |
@@ -247,8 +245,8 @@ The testbench [`tb/tb_dual_core_cache.sv`](tb/tb_dual_core_cache.sv) implements 
 | **13** | **Core 0 Reads Core 1 Line** | Triggers snoop downgrade in Core 1 (`E` $\rightarrow$ `S`), installs in Core 0 as `SHARED`. | Scoreboard Match | **PASS** |
 | **14** | **Core 1 Upgrade Write** | Broadcasts `BUS_UPGR`, invalidates Core 0, transitions Core 1 to `MODIFIED`. | Scoreboard Match | **PASS** |
 | **15** | **Core 1 Conflict Eviction & WB** | 2-Way set conflict forces dirty eviction to DRAM via `BUS_WB`. | Scoreboard Match | **PASS** |
-| **16A** | **Concurrent Multi-Core Parallel Stress** | `fork...join` concurrent execution of 80 randomized transactions across Core 0 and Core 1. Stresses arbiter contention, parallel refills, and set conflict evictions. | 43 Scoreboard Checks<br>70+ SVA Monitors | **PASS** |
-| **16B** | **Shared-Line Coherence Ping-Pong Stress** | 40 randomized reads/writes on shared lines (`0x5000`, `0x6000`). Stresses cross-snoops, dirty line forwarding, upgrades, and invalidations. | 25 Scoreboard Checks<br>70+ SVA Monitors | **PASS** |
+| **16A** | **Concurrent Multi-Core Parallel Stress** | `fork...join` concurrent execution of 80 randomized transactions across Core 0 and Core 1. Stresses arbiter contention, parallel refills, and shared-bus scheduling. | 0 errors | **PASS** |
+| **16B** | **Shared-Line Coherence Ping-Pong Stress** | 40 randomized reads/writes on shared lines (`0x5000`, `0x6000`). Stresses cross-snoops, dirty line forwarding, upgrades, and invalidations. | 0 errors | **PASS** |
 
 ### Vivado XSIM Simulation Transcript
 
@@ -308,4 +306,3 @@ Once the script completes, open the generated HTML dashboards in any web browser
 
 ## Documentation Links
 * [Full Hardware Architecture Specification](CACHE_CONTROLLER_ARCHITECTURE_REPORT.md) — 400+ line technical report detailing datapath schematics, arbitration protocols, and timing diagrams.
-* [Interview Preparation & Design Tradeoffs Guide](docs/CACHE_CONTROLLER_INTERVIEW_PREP_GUIDE.md) — Common interview questions, race condition analysis, and coherence trade-offs.
