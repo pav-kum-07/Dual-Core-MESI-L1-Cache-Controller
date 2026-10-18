@@ -1,0 +1,26 @@
+# ============================================================================
+# Vivado & XSIM Temporary Simulation Artifacts
+# ============================================================================
+*.log
+*.jou
+*.pb
+*.wdb
+*.vcd
+xsim.dir/
+.Xil/
+webtalk*
+
+# Coverage raw databases (HTML reports in coverage_report/ can be tracked)
+cov/
+.cov/
+xcrg.log
+*.backup.*
+
+# Exclude private interview prep materials
+docs/*interview*
+docs/CACHE_CONTROLLER_INTERVIEW_PREP_GUIDE.md
+
+# Operating System specific
+Thumbs.db
+.DS_Store
+*.tmp
